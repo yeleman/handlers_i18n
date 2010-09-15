@@ -5,6 +5,7 @@
 from rapidsms.contrib.handlers.handlers.base import BaseHandler
 from rapidsms.conf import settings
 from django.utils import translation
+from rapidsms.models import Contact
 
 class KeywordHandlerI18n(BaseHandler):
 
@@ -119,10 +120,18 @@ class KeywordHandlerI18n(BaseHandler):
             return False
 
         # activate language
-        if cls.AUTO_SET_LANG:
-             cur_language = translation.get_language()
-             translation.activate(lang_code)
-             
+        contact = msg.connection.contact
+        django_lang_bak = translation.get_language()
+        if contact:
+            if cls.AUTO_SET_LANG:
+                contact_lang_bak = None
+                contact.language = lang_code
+                translation.activate(lang_code)
+            else:
+                translation.activate(contact.language)
+        else:
+            translation.activate(lang_code)
+        
         # excute handle
         try:
             # spawn an instance of this handler, and stash
@@ -142,7 +151,10 @@ class KeywordHandlerI18n(BaseHandler):
         # set back language to the original one
         finally:
             if cls.AUTO_SET_LANG:
-                translation.activate(cur_language)
+                contact_lang_bak = None
+                if contact_lang_bak:
+                    contact.language = contact_lang_bak
+                translation.activate(django_lang_bak)
 
         # let a change for the handler to override the return value
         if ret is not None:

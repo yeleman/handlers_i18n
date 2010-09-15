@@ -1,0 +1,64 @@
+The handlers_i18n app provides basic handlers just like 
+rapidsms.contrib.registration does, but
+allowing i18n for keywords.
+
+Features 
+=========
+
+    - Ability to anwser in the same language than the keyword
+    - Can set several alias for each keyword
+    - Mapping is a hash not a regexp, which is a bit faster
+
+Features that have the original registration but not this one
+=============================================================
+
+    - Ability accept any separator between the keyword and the data. Currently it 
+    accepts only spaces
+  
+Requirements
+============
+
+    - rapidsms.contrib.handlers
+    
+Setup
+======
+
+    - Make sure rapidsms.contrib.handlers is in your INSTALLED_APPS
+    - Add handlers_i18n in your INSTALLED_APPS
+    
+Usage
+======
+
+When you create a new handler::
+
+    from handlers_i18n.handlers.keyword import KeywordHandlerI18n
+
+    class YourHandler18n(KeywordHandlerI18n):
+
+        keyword = "hello" # your main keyword (used with settings.LANGUAGE_CODE)
+        
+        # put here aliases for each language code
+        aliases = (
+                    ('en-us', ('hi',)),
+                    ('fr', ('bonjour', 'salut')),
+                  )
+                  
+        # chose weither the handler set the local and contact lang automatically
+        # or let you do it
+        AUTO_SET_LANG = True
+
+
+        # all the methods below will be passed:
+        # - keyword: the keyword that has been send in SMS
+        # - lang_code: the language code detected from the keyword (default to settings.LANGUAGE_CODE)
+
+        def help(self, keyword, lang_code):
+            # put here the text you want to send when there is nothing after 
+            # the keyword in the SMS
+
+
+        def handle(self, text, keyword, lang_code):
+            # put the code to play with the SMS here
+            # only SMS with matching keyword will be passed here
+            
+            # the handler will return True by default unless your return False here
