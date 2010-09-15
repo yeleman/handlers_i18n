@@ -1,6 +1,9 @@
-*pyc
-*db
-*sqlite*
+*.pyc
+*.db
+*.sqlite*
 ~*
-*orig
+*.orig
 private
+*.log
+*.log.*
+*.mo
