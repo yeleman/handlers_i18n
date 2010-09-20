@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+from django.utils import translation
+from django.conf import settings
 
 from rapidsms.contrib.handlers.handlers.base import BaseHandler
 from rapidsms.conf import settings
-from django.utils import translation
 from rapidsms.models import Contact
 
 class KeywordHandlerI18n(BaseHandler):
@@ -49,6 +50,7 @@ class KeywordHandlerI18n(BaseHandler):
     
     
     AUTO_SET_LANG = True
+    _duplicate_aliases = set()
     
     
     @classmethod
@@ -58,35 +60,42 @@ class KeywordHandlerI18n(BaseHandler):
         """
         return keyword.lower().strip()
 
-
+    
     @classmethod
     def keywords(cls):
         """
             Return a mapping between all accepted keywords and a language code.
         """
-    
         # try to get data from the cache first
         try:
             return cls._keywords_cache
         except AttributeError:
+            duplicate_counter = {}
             try:
                 # default keyword
-                kw_mappping = { cls._clean_keyword(cls.keyword): 
-                                settings.LANGUAGE_CODE }
+                kw = cls._clean_keyword(cls.keyword)
+                kw_mapping = {kw: settings.LANGUAGE_CODE}
             except AttributeError:
                 return {}
-            else:               
+            else:   
                 # add aliases for the same language and other ones
                 try:
                     for lang_code, aliases_list in cls.aliases:
                         for alias in aliases_list:
-                            kw_mappping[cls._clean_keyword(alias)] = lang_code
+                            kw = cls._clean_keyword(alias)
+                            duplicate_counter[kw] = duplicate_counter.get(kw, 0) + 1
+                            kw_mapping[kw] = lang_code
                 except AttributeError:
                     pass
-             
-        cls._keywords_cache = kw_mappping # set the cache
         
-        return kw_mappping
+        # create a list for duplicate keywords for which we will never force
+        # the lang 
+        for kw, count in duplicate_counter.iteritems():
+            if count > 1:
+                 cls._duplicate_aliases.add(kw)
+        cls._keywords_cache = kw_mapping # set the cache
+        
+        return kw_mapping
 
 
     @classmethod
@@ -95,16 +104,19 @@ class KeywordHandlerI18n(BaseHandler):
             Check is a message match one of the keywords and return the 
             keyword and the language code.
         """
+        
         text = msg.text
-        lang_code = None
+        lang_code = settings.LANGUAGE_CODE
         keyword = None
 
         if text:     
             splitted_text = msg.text.split(None, 1) + [None] 
             first_word = cls._clean_keyword(splitted_text.pop(0))
             try:
-                return (first_word, cls.keywords()[first_word], 
-                        splitted_text.pop(0))
+                keywords = cls.keywords()
+                if first_word not in cls._duplicate_aliases:
+                    lang_code = keywords[first_word]
+                return (first_word, lang_code, splitted_text.pop(0))
             except KeyError:
                 pass
             
@@ -133,6 +145,7 @@ class KeywordHandlerI18n(BaseHandler):
             translation.activate(lang_code)
         
         # excute handle
+        ret = None
         try:
             # spawn an instance of this handler, and stash
             # the low(er)-level router and message object
@@ -147,7 +160,6 @@ class KeywordHandlerI18n(BaseHandler):
                 ret = inst.handle(text, keyword, lang_code)
             else:
                 ret = inst.help(keyword, lang_code)
-
         # set back language to the original one
         finally:
             if cls.AUTO_SET_LANG:
@@ -155,9 +167,13 @@ class KeywordHandlerI18n(BaseHandler):
                 if contact_lang_bak:
                     contact.language = contact_lang_bak
                 translation.activate(django_lang_bak)
+        
+		    if ret is not None:
+		         return ret
+		    
+		    return True
+        
+        
 
-        # let a change for the handler to override the return value
-        if ret is not None:
-            return ret
-            
-        return True
+        
+
