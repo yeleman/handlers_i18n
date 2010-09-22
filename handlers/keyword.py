@@ -1,5 +1,10 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4
+
+
+import sys
+import traceback
 
 from django.utils import translation
 from django.conf import settings
@@ -7,6 +12,8 @@ from django.conf import settings
 from rapidsms.contrib.handlers.handlers.base import BaseHandler
 from rapidsms.conf import settings
 from rapidsms.models import Contact
+
+from ..exceptions import ExitHandle
 
 class KeywordHandlerI18n(BaseHandler):
 
@@ -52,9 +59,17 @@ class KeywordHandlerI18n(BaseHandler):
     AUTO_SET_LANG = True
     _duplicate_aliases = set()
     
+   
+    @classmethod
+    def flatten_string(cls, s):
+        """
+            Return a lowercase name extra spaces.
+        """
+        return " ".join(cls.clean_string(s).split())
+
     
     @classmethod
-    def _clean_keyword(cls, keyword):
+    def clean_string(cls, keyword):
         """
             Returns a keyword lowercase with no spaces around it.
         """
@@ -70,21 +85,39 @@ class KeywordHandlerI18n(BaseHandler):
         try:
             return cls._keywords_cache
         except AttributeError:
+        
+            languages = dict(settings.LANGUAGES)
             duplicate_counter = {}
+            
             try:
                 # default keyword
-                kw = cls._clean_keyword(cls.keyword)
+                kw = cls.clean_string(cls.keyword)
                 kw_mapping = {kw: settings.LANGUAGE_CODE}
+                
+                if settings.LANGUAGE_CODE not in languages:
+                    msg = u"The language code '%(code)s' in your "\
+                          u" settings.LANGUAGE_CODE is not in settings.LANGUAGES."\
+                          u" Please add it." % {'code': settings.LANGUAGE_CODE}
+                    raise ValueError(msg)    
+                
             except AttributeError:
                 return {}
             else:   
                 # add aliases for the same language and other ones
                 try:
                     for lang_code, aliases_list in cls.aliases:
+                        
+                        if lang_code not in languages:
+                            msg = u"The language code '%(code)s' in your "\
+                                  u" aliases is not in settings.LANGUAGES."\
+                                  u" Please add it." % {'code': lang_code}
+                            raise ValueError(msg)                            
+                    
                         for alias in aliases_list:
-                            kw = cls._clean_keyword(alias)
+                            kw = cls.clean_string(alias)
                             duplicate_counter[kw] = duplicate_counter.get(kw, 0) + 1
                             kw_mapping[kw] = lang_code
+                            
                 except AttributeError:
                     pass
         
@@ -111,7 +144,7 @@ class KeywordHandlerI18n(BaseHandler):
 
         if text:     
             splitted_text = msg.text.split(None, 1) + [None] 
-            first_word = cls._clean_keyword(splitted_text.pop(0))
+            first_word = cls.clean_string(splitted_text.pop(0))
             try:
                 keywords = cls.keywords()
                 if first_word not in cls._duplicate_aliases:
@@ -160,6 +193,19 @@ class KeywordHandlerI18n(BaseHandler):
                 ret = inst.handle(text, keyword, lang_code)
             else:
                 ret = inst.help(keyword, lang_code)
+                
+        except ExitHandle as exit:
+        
+            if exit.message:
+                inst.respond(exit.message)
+            if not exit.carry_on:
+                return True
+                
+        except Exception as e:
+            err, detail, tb = sys.exc_info()
+            print err, detail
+            traceback.print_tb(tb)
+            
         # set back language to the original one
         finally:
             if cls.AUTO_SET_LANG:
@@ -167,11 +213,11 @@ class KeywordHandlerI18n(BaseHandler):
                 if contact_lang_bak:
                     contact.language = contact_lang_bak
                 translation.activate(django_lang_bak)
-        
-		    if ret is not None:
-		         return ret
-		    
-		    return True
+
+            if ret is not None:
+                return ret
+
+            return True
         
         
 
