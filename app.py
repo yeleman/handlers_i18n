@@ -14,7 +14,6 @@ class App(AppBase):
         """
 
         self.handlers = get_handlers()
-
         if len(self.handlers):
             class_names = [cls.__name__ for cls in self.handlers]
             self.info("Registered: %s" % (", ".join(class_names)))
@@ -28,7 +27,7 @@ class App(AppBase):
         the order that they're called in. (This is intended to force
         handlers to be as reluctant as possible.)
         """
-
+        
         for handler in self.handlers:
             if handler.dispatch(self.router, msg):
                 self.info("Incoming message handled by %s" % handler.__name__)

@@ -215,7 +215,7 @@ class KeywordHandlerI18n(BaseHandler):
                     contact.language = contact_lang_bak
                 translation.activate(django_lang_bak)
 
-            return ret if ret is not None else True
+        return ret if ret is not None else True
         
         
 

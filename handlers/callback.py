@@ -54,24 +54,28 @@ class CallbackHandler(BaseHandler):
 
     @classmethod
     def dispatch(cls, router, msg):
-        # filter message
-        match = cls.match(msg)
-        if not match:
-            return False
-
-        # todo: set the translation in an i18n app.
-        contact = msg.connection.contact
-        django_lang_bak = translation.get_language()
-        if contact:
-            translation.activate(contact.language)
 
         # todo make this part something common among all handlers        
         # excute handle
         ret = None
         try:
+        
+            # todo: set the translation in an i18n app.
+            # we need to do that before in case we goes out in match()
+            contact = msg.connection.contact
+            django_lang_bak = translation.get_language()
+            if contact:
+                translation.activate(contact.language)
+        
             # spawn an instance of this handler, and stash
             # the low(er)-level router and message object
             inst = cls(router, msg)
+            
+            # filter message
+            # match may raise ExitHandle
+            match = cls.match(msg)
+            if not match:
+                return False
 
             # if any non-whitespace content was send after the keyword, send
             # it along to the handle method. the instance can always find
@@ -97,7 +101,7 @@ class CallbackHandler(BaseHandler):
         
             translation.activate(django_lang_bak)
 
-            return ret if ret is not None else True
+        return ret if ret is not None else True
         
         
 
