@@ -9,7 +9,7 @@ import traceback
 from django.utils import translation
 from django.conf import settings
 
-from rapidsms.contrib.handlers.handlers.base import BaseHandler
+from base import BaseHandler
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 
@@ -34,14 +34,14 @@ class KeywordHandlerI18n(BaseHandler):
 
     If the keyword is matched and followed by some text, the ``handle``
     method is called::
-
-        >>> AbcHandler.test("Hello")
-        ['Here is some help.']
+    
+        >>> AbcHandler.test("bonjour mec")
+        ['Vous avez dit: mec.']
 
     If *just* the keyword is matched, the ``help`` method is called::
 
-        >>> AbcHandler.test("bonjour mec")
-        ['Vous avez dit: mec.']
+        >>> AbcHandler.test("Hello")
+        ['Here is some help.']
 
     All other messages are silently ignored (as usual), to allow other
     apps or handlers to catch them.
@@ -167,9 +167,10 @@ class KeywordHandlerI18n(BaseHandler):
         # activate language
         contact = msg.connection.contact
         django_lang_bak = translation.get_language()
+        contact_lang_bak = None
         if contact:
             if cls.AUTO_SET_LANG:
-                contact_lang_bak = None
+                contact_lang_bak = contact.language
                 contact.language = lang_code
                 translation.activate(lang_code)
             else:
@@ -208,16 +209,13 @@ class KeywordHandlerI18n(BaseHandler):
             
         # set back language to the original one
         finally:
+        
             if cls.AUTO_SET_LANG:
-                contact_lang_bak = None
                 if contact_lang_bak:
                     contact.language = contact_lang_bak
                 translation.activate(django_lang_bak)
 
-            if ret is not None:
-                return ret
-
-            return True
+            return ret if ret is not None else True
         
         
 

@@ -11,14 +11,18 @@ RapidSMS ASAP for this.
 """
 
 from functools import update_wrapper
+
+from django.db import models
+
 from rapidsms.messages.incoming import OutgoingMessage
+from rapidsms.models import ConnectionBase, Contact
 
 # need to rename the old method to avoid recursive calls    
 OutgoingMessage._text = OutgoingMessage.text
 
 def text(self, *args, **kwargs):
     """
-        Add a reference to the message the current sms is a response to
+        Remove unicode conversion from the method
     """
     try:
         return OutgoingMessage._text.fget(self, *args, **kwargs)
@@ -30,6 +34,13 @@ OutgoingMessage.text = property(update_wrapper(text, OutgoingMessage._text.fget)
 OutgoingMessage.render_part = OutgoingMessage._render_part
 
 def _render_part(self, template, **kwargs):
+    """
+        Remove translation from the method
+    """
     return template % kwargs
     
 OutgoingMessage._render_part = update_wrapper(_render_part, OutgoingMessage.render_part)
+
+# forbid connection without a user
+ConnectionBase.contact  = models.ForeignKey(Contact)
+
