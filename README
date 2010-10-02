@@ -31,9 +31,9 @@ Usage
 
 When you create a new handler::
 
-    from handlers_i18n.handlers.keyword import KeywordHandlerI18n
+    from handlers_i18n.handlers.keyword import KeywordHandler
 
-    class YourHandler18n(KeywordHandlerI18n):
+    class YourHandler18n(KeywordHandler):
 
         keyword = "hello" # your main keyword (used with settings.LANGUAGE_CODE)
         

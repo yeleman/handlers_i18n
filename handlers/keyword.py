@@ -15,7 +15,7 @@ from rapidsms.models import Contact
 
 from ..exceptions import ExitHandle
 
-class KeywordHandlerI18n(BaseHandler):
+class KeywordHandler(BaseHandler):
 
     """
     This handler type can be subclassed to create keyword-based

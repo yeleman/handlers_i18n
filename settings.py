@@ -7,4 +7,5 @@ module_name = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 INSTALLED_HANDLERS = ()
 EXCLUDED_HANDLERS = (module_name + '.handlers.base.BaseHandler',
                      module_name + '.handlers.callback.CallbackHandler',
-                     module_name + '.handlers.keyword.KeywordHandler')
+                     module_name + '.handlers.keyword.KeywordHandler',
+                     module_name + '.handlers.keyword.PatternHandler')

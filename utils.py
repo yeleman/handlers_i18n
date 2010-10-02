@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+from django.conf import settings
+from django.utils.translation import ugettext as _
+from settings import INSTALLED_HANDLERS, EXCLUDED_HANDLERS
 
 from rapidsms.utils.modules import find_python_files, get_class, try_import
-from .handlers.base import BaseHandler
 
-from settings import INSTALLED_HANDLERS, EXCLUDED_HANDLERS
-from django.conf import settings
+from .handlers.base import BaseHandler
+from .exceptions import ExitHandle
+
 
 INSTALLED_HANDLERS = getattr(settings, 'INSTALLED_HANDLERS', INSTALLED_HANDLERS)
 EXCLUDED_HANDLERS = getattr(settings, 'EXCLUDED_HANDLERS', EXCLUDED_HANDLERS)
+
 
 def get_handlers():
     """
@@ -100,3 +104,6 @@ def _handlers(module_name):
     return [
         get_class(mod, BaseHandler)
         for mod in filter(None, modules)]
+        
+        
+
