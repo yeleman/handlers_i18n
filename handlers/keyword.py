@@ -57,8 +57,8 @@ class KeywordHandler(BaseHandler):
     
     
     AUTO_SET_LANG = True
-    _duplicate_aliases = set()
-    
+    _duplicate_aliases = {}
+    _keywords_cache = {}
    
     @classmethod
     def flatten_string(cls, s):
@@ -83,8 +83,8 @@ class KeywordHandler(BaseHandler):
         """
         # try to get data from the cache first
         try:
-            return cls._keywords_cache
-        except AttributeError:
+            return cls._keywords_cache[cls.keyword]
+        except KeyError:
         
             languages = dict(settings.LANGUAGES)
             duplicate_counter = {}
@@ -123,10 +123,11 @@ class KeywordHandler(BaseHandler):
         
         # create a list for duplicate keywords for which we will never force
         # the lang 
+        cls._duplicate_aliases[cls.keyword] = set()
         for kw, count in duplicate_counter.iteritems():
             if count > 1:
-                 cls._duplicate_aliases.add(kw)
-        cls._keywords_cache = kw_mapping # set the cache
+                 cls._duplicate_aliases[cls.keyword].add(kw)
+        cls._keywords_cache[cls.keyword] = kw_mapping # set the cache
         
         return kw_mapping
 
@@ -147,7 +148,7 @@ class KeywordHandler(BaseHandler):
             first_word = cls.clean_string(splitted_text.pop(0))
             try:
                 keywords = cls.keywords()
-                if first_word not in cls._duplicate_aliases:
+                if first_word not in cls._duplicate_aliases[cls.keyword]:
                     lang_code = keywords[first_word]
                 return (first_word, lang_code, splitted_text.pop(0))
             except KeyError:
