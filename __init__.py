@@ -37,8 +37,6 @@ def _render_part(self, template, **kwargs):
     """
         Remove translation from the method
     """
-    print template
-    print kwargs
     return template % kwargs
     
 OutgoingMessage._render_part = update_wrapper(_render_part, OutgoingMessage.render_part)
