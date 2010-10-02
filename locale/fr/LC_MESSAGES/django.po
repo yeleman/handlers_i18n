@@ -36,7 +36,7 @@ msgstr ""
 #: utils.py:153
 #, python-format
 msgid "%(ranges)s or %(range)s"
-msgstr ""
+msgstr "%(ranges)s ou %(range)s"
 
 #: utils.py:158
 #,  python-format

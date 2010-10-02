@@ -51,14 +51,16 @@ def require_args(args, min=None, max=None, slices=()):
                 args_range.add(x)
         
         args_range = sorted(list(str(x) for x in args_range))
-        if len(args_range > 1):
-            args_range = _('%(ranges)s or %(range)s') % (
-                          ', '.join(args_range[:-1]), args_range[-1])
+        if len(args_range) > 1:
+            args_range = _('%(ranges)s or %(range)s') % {
+                          'ranges': ', '.join(args_range[:-1]), 
+                          'range': args_range[-1]}
         else:
             args_range = args_range.pop()            
         
         raise ExitHandle(_(u'This command expects %(range)s value(s). You '\
-                          u'provided %(args_number)s.') % {'range': args_range})
+                          u'provided %(args_number)s.') % {'range': args_range,
+                                                         'args_number': count})
         
 
 def check_date(date_str, date_format, remove_separators=()):
