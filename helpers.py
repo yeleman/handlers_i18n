@@ -87,18 +87,18 @@ def check_exists(code, model, field_code='code'):
         
         If it does, returns it.
         
-        Code field must have a unique constraint for it to work
+        Code field must have a unique constraint and a verbose name for it to work.
     """
     
     try:
-        obj = model.objects.get(**{})
+        obj = model.objects.get(**{field_code:code})
     except model.DoesNotExist:
         obj_name = unicode(model._meta.verbose_name)
-        field_name = unicode(model._meta.get_field_by_name(field_code)[0])
+        field_name = unicode(model._meta.get_field_by_name(field_code)[0].verbose_name)
         raise ExitHandle(_(u"No %(obj_name)s with %(field_name)s '%(code)s' "\
                            u"exists. Ask your administrator the right "\
                            u"%(field_name)s for your %(obj_name)s.") % {
-                           'obj_name': obj_name, 'field_name':field_name, 
+                           'obj_name': _(obj_name), 'field_name':_(field_name), 
                            'code': code})
                                
     return obj                 

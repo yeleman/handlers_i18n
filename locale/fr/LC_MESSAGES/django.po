@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-01 17:46+0200\n"
+"POT-Creation-Date: 2010-10-02 20:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,30 +17,45 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: utils.py:124
-#,  python-format
+#: helpers.py:26
+#, python-format
 msgid ""
 "This command expects at least %(min)s value(s). You provided %(args_number)s."
 msgstr ""
 "Cette commande attend au moins %(min)s valeurs. Vous en avez donné %"
 "(args_number)s."
 
-#: utils.py:129
-#,  python-format
+#: helpers.py:31
+#, python-format
 msgid ""
 "This command expects %(max)s value(s) maximum. You provided %(args_number)s."
 msgstr ""
 "Cette commande attend  %(max)s valeurs maximum. Vous en avez donné %"
 "(args_number)s."
 
-#: utils.py:153
+#: helpers.py:55
 #, python-format
 msgid "%(ranges)s or %(range)s"
 msgstr "%(ranges)s ou %(range)s"
 
-#: utils.py:158
-#,  python-format
+#: helpers.py:61
+#, python-format
 msgid "This command expects %(range)s value(s). You provided %(args_number)s."
 msgstr ""
-"Cette commande attend  %(range)s valeurs. Vous en avez donné %"
-"(args_number)s."
+"Cette commande attend  %(range)s valeurs. Vous en avez donné %(args_number)s."
+
+#: helpers.py:78
+#, python-format
+msgid ""
+"%(date_str)s is not a valid date. The expected date format is: %(format)s"
+msgstr ""
+"%(date_str)s n'est pas un format de date valide. Le format attendu est: %(format)s"
+
+#: helpers.py:98
+#, python-format
+msgid ""
+"No %(obj_name)s with %(field_name)s '%(code)s' exists. Ask your "
+"administrator the right %(field_name)s for your %(obj_name)s."
+msgstr ""
+"Aucun %(obj_name)s avec %(field_name)s '%(code)s' n'existe. Demandez à votre "
+"adminitrateur le %(field_name)s correct(e) pour votre %(obj_name)s."
