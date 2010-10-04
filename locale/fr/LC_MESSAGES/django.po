@@ -59,3 +59,6 @@ msgid ""
 msgstr ""
 "Aucun %(obj_name)s avec %(field_name)s '%(code)s' n'existe. Demandez à votre "
 "adminitrateur le %(field_name)s correct(e) pour votre %(obj_name)s."
+
+msgid "dm"
+msgstr "jm"

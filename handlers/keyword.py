@@ -140,7 +140,10 @@ class KeywordHandler(BaseHandler):
         """
         
         text = msg.text
-        lang_code = settings.LANGUAGE_CODE
+        if msg.contact:
+            lang_code = msg.contact.language or settings.LANGUAGE_CODE
+        else:
+            lang_code = settings.LANGUAGE_CODE
         keyword = None
 
         if text:     

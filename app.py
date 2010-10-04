@@ -28,9 +28,6 @@ class App(AppBase):
         handlers to be as reluctant as possible.)
         """
         
-        from django.utils import translation
-        translation.activate('fr')
-        
         for handler in self.handlers:
             if handler.dispatch(self.router, msg):
                 self.info("Incoming message handled by %s" % handler.__name__)

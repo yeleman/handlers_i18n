@@ -32,7 +32,7 @@ def require_args(args, min=None, max=None, slices=()):
                            u'You provided %(args_number)s.') % {
                            'max': max, 'args_number': count} )
 
-    if range:
+    if slices:
         # checking the range
         for x in slices:
             try:
@@ -77,7 +77,8 @@ def check_date(date_str, date_format, remove_separators=()):
     except ValueError:
         raise ExitHandle(_(u"%(date_str)s is not a valid date. "\
                            u"The expected date format is: %(format)s") % {
-                           'date_str': date_str, 'format':date_format })
+                           'date_str': date_str, 
+                           'format':_(date_format.replace('%', '')) })
                                
 
 
